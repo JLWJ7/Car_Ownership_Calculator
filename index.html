@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Car Loan Calculator</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Segoe UI", system-ui, sans-serif;
+    background: #f0f2f5;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .layout {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    justify-content: center;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 1440px;
+  }
+
+  .card {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    padding: 32px;
+    width: 100%;
+    max-width: 480px;
+    flex: 1 1 380px;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+    margin-bottom: 4px;
+    color: #1a1a2e;
+  }
+
+  h2 {
+    font-size: 1.1rem;
+    color: #1a1a2e;
+    margin-bottom: 12px;
+  }
+
+  .subtitle {
+    color: #777;
+    font-size: 0.9rem;
+    margin-bottom: 24px;
+  }
+
+  label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 6px;
+  }
+
+  .field { margin-bottom: 18px; }
+
+  .hint {
+    font-size: 0.75rem;
+    color: #999;
+    margin-top: 4px;
+  }
+
+  input {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 1rem;
+    border: 1px solid #d0d5dd;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.15s;
+    background: #fff;
+  }
+
+  input:focus { border-color: #4a6cf7; }
+
+  button {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    background: #4a6cf7;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  button:hover { background: #3a5ae0; }
+
+  .result {
+    margin-top: 24px;
+    padding: 18px;
+    background: #f7f9ff;
+    border: 1px solid #e0e7ff;
+    border-radius: 10px;
+  }
+
+  .hidden { display: none; }
+
+  .result .monthly {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #4a6cf7;
+  }
+
+  .result .monthly-label {
+    font-size: 0.8rem;
+    color: #777;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+
+  .breakdown {
+    margin-top: 14px;
+    border-top: 1px solid #e0e7ff;
+    padding-top: 12px;
+    font-size: 0.9rem;
+    color: #555;
+  }
+
+  .breakdown div {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+  }
+
+  .breakdown .total-row {
+    font-weight: 700;
+    color: #1a1a2e;
+    border-top: 1px dashed #c7d2fe;
+    margin-top: 6px;
+    padding-top: 8px;
+  }
+
+  .timeline {
+    margin-top: 16px;
+    padding: 14px;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    color: #78500f;
+  }
+
+  .timeline strong { color: #92400e; }
+
+  .reminder {
+    margin-top: 20px;
+    padding: 14px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    color: #7f1d1d;
+    line-height: 1.5;
+  }
+
+  .reminder strong { display: block; margin-bottom: 4px; }
+
+  .reminder ul {
+    margin: 8px 0;
+    padding-left: 22px;
+  }
+
+  .reminder li { padding: 2px 0; }
+
+  .reminder p { margin-top: 10px; }
+
+  .extras-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #b91c1c;
+    margin-bottom: 4px;
+  }
+
+  .extras-subtitle {
+    font-size: 0.85rem;
+    color: #777;
+    margin-bottom: 18px;
+  }
+
+  .grand-total {
+    margin-top: 20px;
+    padding: 20px;
+    background: #1a1a2e;
+    border-radius: 12px;
+    color: #fff;
+    text-align: center;
+  }
+
+  .grand-total .gt-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #a5b4fc;
+    margin-bottom: 6px;
+  }
+
+  .grand-total .gt-amount {
+    font-size: 2rem;
+    font-weight: 700;
+  }
+
+  .grand-total .gt-note {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    margin-top: 8px;
+  }
+
+  .error {
+    margin-top: 12px;
+    color: #d33;
+    font-size: 0.85rem;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ===== Left card: loan calculator ===== -->
+  <div class="card">
+    <h1>🚗 Car Loan Calculator</h1>
+    <p class="subtitle">Find out what your car <em>really</em> costs you</p>
+
+    <div class="field">
+      <label for="price">Car Price (RM)</label>
+      <input type="number" id="price" placeholder="e.g. 100000" min="0" step="any">
+    </div>
+
+    <div class="field">
+      <label for="downPayment">Down Payment (RM)</label>
+      <input type="number" id="downPayment" placeholder="e.g. 5000" min="0" step="any">
+    </div>
+
+    <div class="field">
+      <label for="years">Loan Period (Years)</label>
+      <input type="number" id="years" placeholder="e.g. 5" min="1" step="1">
+    </div>
+
+    <div class="field">
+      <label for="rate">Interest Rate (% per year)</label>
+      <input type="number" id="rate" placeholder="e.g. 2.35" min="0" step="any">
+      <p class="hint">Flat rate — interest is charged on the full loan amount every year</p>
+    </div>
+
+    <div class="field">
+      <label for="startMonth">Instalment Start Month</label>
+      <input type="month" id="startMonth">
+    </div>
+
+    <button onclick="calculate()">Calculate</button>
+
+    <p class="error" id="error"></p>
+
+    <!-- ===== Loan result ===== -->
+    <div class="result hidden" id="result">
+      <div class="monthly-label">Projected Monthly Instalment</div>
+      <div class="monthly" id="monthly"></div>
+      <div class="breakdown">
+        <div><span>Loan Amount</span><span id="loanAmount"></span></div>
+        <div><span>Total Interest</span><span id="totalInterest"></span></div>
+        <div><span>Loan Amount + Interest</span><span id="totalLoanPayment"></span></div>
+        <div class="total-row"><span>Total Car Price (incl. down payment)</span><span id="totalCarPrice"></span></div>
+      </div>
+    </div>
+
+    <div class="timeline hidden" id="timeline"></div>
+  </div>
+
+  <!-- ===== Right card: hidden costs (appears after calculating) ===== -->
+  <div class="card hidden" id="extrasSection">
+    <div class="extras-title">You think that is all? Not Quite! 😅</div>
+    <p class="extras-subtitle">Owning a car comes with recurring costs on top of the instalment. Fill these in to see the full picture (over your whole loan period).</p>
+
+    <div class="field">
+      <label for="insurance">Car Insurance (RM per year)</label>
+      <input type="number" id="insurance" placeholder="e.g. 2000" min="0" step="any">
+    </div>
+
+    <div class="field">
+      <label for="roadTax">Road Tax (RM per year)</label>
+      <input type="number" id="roadTax" placeholder="e.g. 100" min="0" step="any">
+    </div>
+
+    <div class="field">
+      <label for="maintenance">Maintenance / Service (RM per visit, every 6 months)</label>
+      <input type="number" id="maintenance" placeholder="e.g. 500" min="0" step="any">
+    </div>
+
+    <div class="field">
+      <label for="tyres">Tyre Replacement (RM per full set, every 4 years)</label>
+      <input type="number" id="tyres" placeholder="e.g. 1500" min="0" step="any">
+    </div>
+
+    <div class="field">
+      <label for="petrol">Petrol (RM per month)</label>
+      <input type="number" id="petrol" placeholder="e.g. 300" min="0" step="any">
+    </div>
+
+    <div class="field">
+      <label for="accessories">Car Accessories (RM, one-time — tint, dashcam, coating…)</label>
+      <input type="number" id="accessories" placeholder="e.g. 2500" min="0" step="any">
+    </div>
+
+    <button onclick="calculateExtras()">Show Me The Real Total</button>
+
+    <p class="error" id="extrasError"></p>
+  </div>
+
+  <!-- ===== Third card: ownership cost results + reminder (appears after "Show Me The Real Total") ===== -->
+  <div class="card hidden" id="resultsCard">
+    <h1>💸 The Real Picture</h1>
+    <p class="subtitle">What owning this car actually adds up to</p>
+
+    <div class="result" id="extrasResult">
+      <div class="monthly-label">Extra Ownership Costs Over <span id="extrasYears"></span> Years</div>
+      <div class="breakdown">
+        <div><span>Insurance (<span id="insYears"></span> yrs)</span><span id="insTotal"></span></div>
+        <div><span>Road Tax (<span id="taxYears"></span> yrs)</span><span id="taxTotal"></span></div>
+        <div><span>Maintenance (<span id="maintCount"></span> visits)</span><span id="maintTotal"></span></div>
+        <div><span>Tyres (<span id="tyreCount"></span> set(s))</span><span id="tyreTotal"></span></div>
+        <div><span>Petrol (<span id="petrolMonths"></span> months)</span><span id="petrolTotal"></span></div>
+        <div><span>Accessories (one-time)</span><span id="accTotal"></span></div>
+        <div class="total-row"><span>Total Extra Costs</span><span id="extrasTotal"></span></div>
+      </div>
+    </div>
+
+    <div class="grand-total" id="grandTotal">
+      <div class="gt-label">🏁 Projected Total Cost of Owning This Car</div>
+      <div class="gt-amount" id="grandAmount"></div>
+      <div class="gt-note" id="grandNote"></div>
+    </div>
+
+    <div class="reminder" id="reminder">
+      <strong>⏳ Before you commit, think about what these years could hold…</strong>
+      During this instalment period, that monthly commitment could clash with things like:
+      <ul>
+        <li>a <b>travel plan</b> ✈️</li>
+        <li>an <b>investment opportunity</b> 📈</li>
+        <li>a <b>wedding</b> 💍</li>
+        <li><b>further studies</b> 🎓</li>
+        <li>an <b>emergency fund</b> 🏥</li>
+      </ul>
+      <p>
+        Every ringgit locked into the car is a ringgit not available for these.
+        Make sure the instalment still leaves room for the life you want!
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Shared state between the two calculation steps
+  let loanState = null;
+
+  function fmt(n) {
+    return "RM " + n.toLocaleString("en-MY", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
+  function num(id) {
+    return parseFloat(document.getElementById(id).value);
+  }
+
+  function show(id) { document.getElementById(id).classList.remove("hidden"); }
+  function hide(id) { document.getElementById(id).classList.add("hidden"); }
+
+  function monthName(date) {
+    return date.toLocaleString("en-GB", { month: "long", year: "numeric" });
+  }
+
+  function calculate() {
+    const price = num("price");
+    const downPayment = num("downPayment");
+    const years = num("years");
+    const rate = num("rate");
+    const startVal = document.getElementById("startMonth").value;
+
+    const errorEl = document.getElementById("error");
+    errorEl.style.display = "none";
+    hide("result"); hide("timeline");
+    hide("extrasSection"); hide("resultsCard");
+    loanState = null;
+
+    if ([price, downPayment, years, rate].some(isNaN) || !startVal) {
+      errorEl.textContent = "Please fill in all fields (including start month).";
+      errorEl.style.display = "block";
+      return;
+    }
+    if (downPayment >= price) {
+      errorEl.textContent = "Down payment must be less than the car price.";
+      errorEl.style.display = "block";
+      return;
+    }
+    if (price <= 0 || years <= 0 || rate < 0) {
+      errorEl.textContent = "Please enter valid positive values.";
+      errorEl.style.display = "block";
+      return;
+    }
+
+    const loanAmount = price - downPayment;
+    const months = years * 12;
+
+    // Flat-rate interest: charged on the full loan amount every year
+    // e.g. (67000 * 2.35%) * 7
+    const totalInterest = loanAmount * (rate / 100) * years;
+    const totalLoanPayment = loanAmount + totalInterest;
+    const monthly = totalLoanPayment / months;
+    const totalCarPrice = totalLoanPayment + downPayment;
+
+    document.getElementById("monthly").textContent = fmt(monthly);
+    document.getElementById("loanAmount").textContent = fmt(loanAmount);
+    document.getElementById("totalInterest").textContent = fmt(totalInterest);
+    document.getElementById("totalLoanPayment").textContent = fmt(totalLoanPayment);
+    document.getElementById("totalCarPrice").textContent = fmt(totalCarPrice);
+    show("result");
+
+    // Instalment timeline projection
+    const [sy, sm] = startVal.split("-").map(Number);
+    const startDate = new Date(sy, sm - 1, 1);
+    // Last payment is (months - 1) after the first one
+    const endDate = new Date(sy, sm - 1 + months - 1, 1);
+    document.getElementById("timeline").innerHTML =
+      "📅 Your first payment is in <strong>" + monthName(startDate) + "</strong> " +
+      "and your final payment (" + months + " of " + months + ") lands in " +
+      "<strong>" + monthName(endDate) + "</strong>. " +
+      "That's <strong>" + years + " years</strong> of paying " +
+      "<strong>" + fmt(monthly) + "</strong> every single month.";
+    show("timeline");
+    show("extrasSection");
+
+    loanState = { totalCarPrice, years, months, monthly };
+  }
+
+  function calculateExtras() {
+    if (!loanState) return;
+
+    const insurance = num("insurance");
+    const roadTax = num("roadTax");
+    const maintenance = num("maintenance");
+    const tyres = num("tyres");
+    const petrol = num("petrol");
+    const accessories = num("accessories");
+
+    const errorEl = document.getElementById("extrasError");
+    errorEl.style.display = "none";
+    hide("resultsCard");
+
+    const vals = [insurance, roadTax, maintenance, tyres, petrol, accessories];
+    if (vals.some(isNaN)) {
+      errorEl.textContent = "Please fill in all cost fields (enter 0 if not applicable).";
+      errorEl.style.display = "block";
+      return;
+    }
+    if (vals.some(v => v < 0)) {
+      errorEl.textContent = "Costs cannot be negative.";
+      errorEl.style.display = "block";
+      return;
+    }
+
+    const { totalCarPrice, years, months } = loanState;
+
+    const maintVisits = Math.floor(years * 2);      // every 6 months
+    const tyreSets = Math.floor(years / 4);         // every 4 years
+
+    const insTotal = insurance * years;
+    const taxTotal = roadTax * years;
+    const maintTotal = maintenance * maintVisits;
+    const tyreTotal = tyres * tyreSets;
+    const petrolTotal = petrol * months;
+    const extrasTotal = insTotal + taxTotal + maintTotal + tyreTotal + petrolTotal + accessories;
+    const grand = totalCarPrice + extrasTotal;
+
+    document.getElementById("extrasYears").textContent = years;
+    document.getElementById("insYears").textContent = years;
+    document.getElementById("taxYears").textContent = years;
+    document.getElementById("maintCount").textContent = maintVisits;
+    document.getElementById("tyreCount").textContent = tyreSets;
+    document.getElementById("petrolMonths").textContent = months;
+
+    document.getElementById("insTotal").textContent = fmt(insTotal);
+    document.getElementById("taxTotal").textContent = fmt(taxTotal);
+    document.getElementById("maintTotal").textContent = fmt(maintTotal);
+    document.getElementById("tyreTotal").textContent = fmt(tyreTotal);
+    document.getElementById("petrolTotal").textContent = fmt(petrolTotal);
+    document.getElementById("accTotal").textContent = fmt(accessories);
+    document.getElementById("extrasTotal").textContent = fmt(extrasTotal);
+
+    document.getElementById("grandAmount").textContent = fmt(grand);
+    document.getElementById("grandNote").textContent =
+      "Car + interest (" + fmt(totalCarPrice) + ") + running costs (" + fmt(extrasTotal) + ") over " +
+      years + " years — that's about " + fmt(grand / months) + " per month all-in.";
+    show("resultsCard");
+  }
+
+  // Allow pressing Enter in any field to trigger the relevant calculation
+  document.querySelectorAll("#extrasSection input").forEach(el => {
+    el.addEventListener("keydown", e => {
+      if (e.key === "Enter") calculateExtras();
+    });
+  });
+  document.querySelectorAll(".card:not(#extrasSection) input").forEach(el => {
+    el.addEventListener("keydown", e => {
+      if (e.key === "Enter") calculate();
+    });
+  });
+</script>
+
+</body>
+</html>
